@@ -4,6 +4,8 @@ import { ListItem, Card, Icon, Header } from 'react-native-elements'
 import firebase from 'firebase';
 import db from '../config'
 import MyHeader from '../components/MyHeader';
+import { ScrollView } from 'react-native-gesture-handler';
+import {Avatar} from 'react-native-elements';
 
 export default class TuitionDetailsScreen extends React.Component {
     constructor(props) {
@@ -184,16 +186,17 @@ export default class TuitionDetailsScreen extends React.Component {
 
     render() {
         return (
-            <View style={{ flex: 1 }}>
+            <ScrollView style={{ flex: 1 }}>
                 <View style={{ flex: 0.1 }}>
                     <Header
                         leftComponent={<Icon name="arrow-left" type='feather' color='black' onPress={() => this.props.navigation.goBack()} />}
                         centerComponent={{ text: "Details", style: { color: 'black', fontSize: 20, fontWeight: 'bold', height: 50, paddingTop: 5 } }}
-                        //backgroundColor="white"
+                        backgroundColor="white"
                          />
                 </View>
 
-                <View style={{ flex: 0.3 }}>
+                <View style={{ flex: 0.4, marginTop: 20 }}>
+                    <ScrollView>
                     <Card
                         title={"Tuition Details"}
                         titleStyle={{ fontSize: 20 }}>
@@ -217,6 +220,7 @@ export default class TuitionDetailsScreen extends React.Component {
                             <Text style={{ fontWeight: 'bold' }}> By: {this.state.receiverName} </Text>
                         </Card>
                     </Card>
+                    </ScrollView>
                 </View>
 
                 <View style={{ flex: 1, marginTop: "5%" }}>
@@ -265,7 +269,7 @@ export default class TuitionDetailsScreen extends React.Component {
                         <Icon name="paper-plane" type="font-awesome" style={{ alignSelf: 'center' }} color='white' onPress={() => { this.sendMessage(this.state.message) }} />
                     </TouchableOpacity>
                 </KeyboardAvoidingView>
-            </View>
+            </ScrollView>
 
         )
     }
@@ -295,7 +299,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         left: 0,
         right: 0,
-        bottom: 0,
+        bottom: 20,
         flexDirection: 'row',
         borderTopWidth: 1,
         borderTopColor: 'black',

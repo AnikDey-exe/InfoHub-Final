@@ -69,7 +69,7 @@ export default class HomeScreen extends React.Component {
                     <Header
                     leftComponent={<Icon name="arrow-left" type='feather' color='black' onPress={() => this.props.navigation.goBack()}/>}
                     centerComponent={{text: "Profile Details",style:{color: 'black',fontSize: 20, fontWeight: 'bold',height: 50, paddingTop: 5}}}
-                    //backgroundColor="white"
+                    backgroundColor="white"
                     />
                 </View>
 

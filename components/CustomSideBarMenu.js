@@ -124,12 +124,12 @@ export default class CustomSideBarMenu extends React.Component {
                     onPress={()=>{this.selectPicture()}}
                     containerStyle={{
                         
-                       marginTop: 30
+                       marginTop: 20
                         
                     }}
                     showEditButton/>
-                    <Text style={{fontWeight: 'bold', fontSize: 20, paddingTop: 20}}> {this.state.name} </Text>
-                    <Text style={{fontWeight: '400', fontSize: 15, paddingTop: 40, color: 'grey'}}> {this.state.userId} </Text>
+                    <Text style={{fontWeight: 'bold', fontSize: 20, paddingTop: 10}}> {this.state.name} </Text>
+                    <Text style={{fontWeight: '400', fontSize: 15, paddingTop: 0, color: 'grey'}}> {this.state.userId} </Text>
                 </View>
                 <View style={styles.drawerItemContainer}>
                     <DrawerItems
