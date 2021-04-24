@@ -133,9 +133,6 @@ export default class OfferScreen extends Component {
         else if(this.state.description === '') {
             return alert("Please provide a description.");
         }
-        else if(this.state.contact === '') {
-            return alert("Please provide a contact.");
-        }
     
         this.setState({
             topic:'',
@@ -194,7 +191,7 @@ export default class OfferScreen extends Component {
 
                 <TextInput
                 style ={styles.formTextInput}
-                placeholder={"Email/Phone Number"}
+                placeholder={"Email/Phone Number(Optional)"}
                 onChangeText ={(text)=>{
                     this.setState({
                         contact: text
