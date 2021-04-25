@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Info-Hub",
-    "slug": "Info-Hub",
+    "name": "Tuition-Hub",
+    "slug": "Tuition-Hub",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/AppLogoInfo.png",
@@ -20,7 +20,7 @@
       "supportsTablet": true
     },
     "android": {
-      "package": "com.user.InfoBrain",
+      "package": "com.user.TuitionHub",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"

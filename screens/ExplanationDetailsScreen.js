@@ -301,7 +301,7 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         bottom: 0,
-        top: 40,
+        top: "89%",
         flexDirection: 'row',
         borderTopWidth: 1,
         borderTopColor: 'black',
