@@ -203,7 +203,7 @@ export default class ExplanationDetailsScreen extends React.Component {
                         />
                 </View>
 
-                <View style={{ flex: 0.4, marginTop: 20, }}>
+                <View style={{ flex: 0.4, marginTop: 40, }}>
                     <ScrollView>
                         <Card
                             title={"Article"}
@@ -301,6 +301,7 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         bottom: 0,
+        top: 40,
         flexDirection: 'row',
         borderTopWidth: 1,
         borderTopColor: 'black',

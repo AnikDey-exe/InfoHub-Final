@@ -217,7 +217,7 @@ componentDidMount() {
             <Image
             source={require('../assets/AppLogoInfo.png')}
             style={{width: 400, height: 400, alignItems: 'center',marginTop: 0, bottom: "10%"}}/>
-              <Text style={styles.title}> Info Brain </Text>
+              <Text style={styles.title}> Tuition Hub </Text>
           </View>
         
           <Card containerStyle={{position: 'absolute', bottom: 50, borderRadius: 10}}>

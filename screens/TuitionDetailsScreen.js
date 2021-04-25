@@ -186,7 +186,7 @@ export default class TuitionDetailsScreen extends React.Component {
 
     render() {
         return (
-            <ScrollView style={{ flex: 1 }}>
+            <View style={{ flex: 1 }}>
                 <View style={{ flex: 0.1 }}>
                     <Header
                         leftComponent={<Icon name="arrow-left" type='feather' color='black' onPress={() => this.props.navigation.goBack()} />}
@@ -195,7 +195,7 @@ export default class TuitionDetailsScreen extends React.Component {
                          />
                 </View>
 
-                <View style={{ flex: 0.4, marginTop: 20 }}>
+                <View style={{ flex: 0.4, marginTop: 40 }}>
                     <ScrollView>
                     <Card
                         title={"Tuition Details"}
@@ -269,7 +269,7 @@ export default class TuitionDetailsScreen extends React.Component {
                         <Icon name="paper-plane" type="font-awesome" style={{ alignSelf: 'center' }} color='white' onPress={() => { this.sendMessage(this.state.message) }} />
                     </TouchableOpacity>
                 </KeyboardAvoidingView>
-            </ScrollView>
+            </View>
 
         )
     }
@@ -299,7 +299,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         left: 0,
         right: 0,
-        bottom: 20,
+        bottom: 0,
         flexDirection: 'row',
         borderTopWidth: 1,
         borderTopColor: 'black',

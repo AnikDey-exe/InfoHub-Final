@@ -186,13 +186,13 @@ export default class HomeScreen extends React.Component {
                         </Card>
                     </View>
 
-                    <View style={{ flex: 1, top: 30, height: "100%" }}>
+                    <View style={{ flex: 10}}>
                         <TouchableOpacity
                             style={{ backgroundColor: 'black', borderRadius: 25, justifyContent: 'center', alignItems: 'center', width: 50, height: 50, alignSelf: 'center' }}
                             onPress={() => {
                                 this.props.navigation.navigate('Settings')
                             }}>
-                            <Icon name='cog' style={{ paddingTop: 2.5 }} type='font-awesome' color='white' onPress={() => { this.props.navigation.navigate('Settings') }} />
+                            <Icon name='cog' style={{ paddingTop: 5 }} type='font-awesome' color='white' onPress={() => { this.props.navigation.navigate('Settings') }} />
                         </TouchableOpacity>
                     </View>
                 </ScrollView>
