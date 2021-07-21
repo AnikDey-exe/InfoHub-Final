@@ -20,7 +20,12 @@ export default class HomeScreen extends React.Component {
             userContact: '',
             userDescription: '',
             docId: '',
-            image: ''
+            image: '',
+            viewerFirstName: '',
+            viewerLastName: '',
+            viewerFullName: '',
+            viewerImage: '',
+            conversationId: ''
         }
     }
 
@@ -35,6 +40,21 @@ export default class HomeScreen extends React.Component {
         .catch((error)=>{
             this.setState({
                 image: '#'
+            })
+        })
+    }
+
+    fetchViewerImage = (imageName) => {
+        var storageRef = firebase.storage().ref().child("user_profiles/"+imageName);
+        storageRef.getDownloadURL()
+        .then((url)=>{
+            this.setState({
+                viewerImage: url
+            })
+        })
+        .catch((error)=>{
+            this.setState({
+                viewerImage: '#'
             })
         })
     }
@@ -56,9 +76,81 @@ export default class HomeScreen extends React.Component {
         })
     }
 
+    getViewerDetails = () => {
+        db.collection("Users").where("emailID","==",this.state.userId).get()
+        .then(snapshot => {
+            snapshot.forEach((doc) => {
+                this.setState({
+                    viewerFirstName: doc.data().firstName,
+                    viewerLastName: doc.data().lastName,
+                    viewerFullName: doc.data().firstName + " " + doc.data().lastName,
+                })
+            })
+        })
+    }
+
+    createUniqueId(){
+        return Math.random().toString(36).substring(7);
+    }
+
+    addConversationNotification = () => {
+        var message = this.state.viewerFullName + " has started a conversation with you named "+this.state.userFullName + ", " + this.state.viewerFullName + ".";
+            db.collection("AllNotifications").add({
+                "message": message,
+                "notificationStatus": "unread",
+                "date": firebase.firestore.FieldValue.serverTimestamp(),
+                "targetedUserId": this.state.profileId,
+                "userId": this.state.userId,
+                "image": this.state.viewerImage,
+                "type": 'conversation',
+                "requestId": this.state.conversationId,
+                "targetedUserId2": this.state.userId,
+                "topic": this.state.userFullName + ", " + this.state.viewerFullName,
+                "description": "Start a new conversation!"
+            })
+    }
+
     componentDidMount() {
         this.getUserDetails();
+        this.getViewerDetails();
         this.fetchImage(this.state.profileId);
+        this.fetchViewerImage(this.state.userId);
+    }
+
+    addConversation = (profileId) => {
+        var conversationId = this.createUniqueId();
+        this.setState({
+            conversationId: conversationId
+        })
+        db.collection("Conversations").add({
+            "topic": this.state.userFullName + ", " + this.state.viewerFullName,
+            "conversationId": conversationId,
+            "targetedUserId": profileId.toLowerCase(),
+            "targetedUserId2": this.state.userId.toLowerCase(),
+            "description": "Start a new conversation!",
+            "targetUserName": this.state.userFullName,
+            "userName": this.state.viewerFullName,
+            "requestId": conversationId,
+        })
+
+        db.collection("Conversations").add({
+            "topic": this.state.userFullName + ", " + this.state.viewerFullName,
+            "requestId": conversationId,
+            "targetedUserId": this.state.userId.toLowerCase(),
+            "targetedUserId2": profileId.toLowerCase(),
+            "description": "Start a new conversation!",
+            "targetUserName": this.state.userFullName,
+            "userName": this.state.viewerFullName
+        })
+        .then(()=>{
+            this.setState({
+                topic: '',
+                description: '',
+                targetedUserId: ''
+            })
+        })
+
+        return alert("If this user already has an account, you have successfully started a conversation with them!")
     }
 
     render() {
@@ -108,14 +200,7 @@ export default class HomeScreen extends React.Component {
                         <Card>
                             <Text style={{fontWeight: 'bold'}}> Last Name: {this.state.userLastName} </Text>
                         </Card>
-
-                        <Card>
-                            <Text style={{fontWeight: 'bold'}}> Email: {this.state.profileId} </Text>
-                        </Card>
-
-                        <Card>
-                            <Text style={{fontWeight: 'bold'}}> Contact: {this.state.userContact} </Text>
-                        </Card>
+                        
                     </Card>
                 </View>
 
@@ -134,6 +219,25 @@ export default class HomeScreen extends React.Component {
                         null
                     )
                 }
+
+                {
+                    this.state.profileId !== this.state.userId ? (
+                        <View style={{flex: 10}}>
+                        <TouchableOpacity 
+                        style={{backgroundColor:'black', borderRadius: 25, justifyContent: 'center', alignItems: 'center',width: 160,height: 30, marginTop: 20, alignSelf: 'center'}}
+                        onPress={()=>{
+                            this.addConversation(this.state.profileId)
+                            this.addConversationNotification(this.state.userId)
+                        }}>
+                            <Text style={{alignSelf: 'center', color: 'white', fontSize: 15}}> Start Conversation </Text>
+                        </TouchableOpacity>
+                    </View>
+                    ) : (
+                        null
+                    )
+                }
+
+                
                 </ScrollView>
 
             </View>

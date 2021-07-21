@@ -9,7 +9,7 @@ import {
   Alert} from 'react-native';
 import db from '../config';
 import firebase from 'firebase';
-import MyHeader from '../components/MyHeader'
+import MyHeader from '../components/MyHeader';
 
 export default class ExplainScreen extends Component {
     constructor() {
@@ -86,7 +86,7 @@ export default class ExplainScreen extends Component {
             })
 
 
-            return Alert.alert("Your post has been added. \n Note that you can only post a topic and get 10 points only once per session.");
+            return alert("Your post has been added. \n Note that you can only post a topic and get 10 points only once per session.");
         
         }
         else if(this.state.topic === ''){
@@ -117,7 +117,7 @@ export default class ExplainScreen extends Component {
                 navigation={this.props.navigation}/>
 
             <KeyboardAvoidingView style={styles.keyBoardStyle}>
-                      <Text style={{fontSize: 15, alignSelf: 'center', fontWeight: 'bold', marginTop: 20}}> Total Points: {this.state.points} </Text>
+                      <Text style={styles.pointsStyle}> Total Points: {this.state.points} </Text>
               <TextInput
                 style ={styles.formTextInput}
                 placeholder={"Topic"}
@@ -146,7 +146,7 @@ export default class ExplainScreen extends Component {
                     this.addPost(this.state.topic,this.state.explanation)
                     this.addPoints()
                 }}>
-                <Text>Add</Text>
+                <Text style={{color:'white', fontFamily: 'PoppinsRegular'}}>Submit</Text>
               </TouchableOpacity>
             </KeyboardAvoidingView>
             </View>
@@ -165,18 +165,20 @@ const styles = StyleSheet.create({
       height:40,
       alignSelf:'center',
       borderColor:'black',
-      borderRadius:15,
+      borderRadius:10,
       borderWidth:0.5,
       marginTop:25,
       padding:10,
+      fontFamily: 'PoppinsRegular',
+      fontSize: 10
     },
     button:{
       width:"75%",
       height:50,
       justifyContent:'center',
       alignItems:'center',
-      borderRadius:15,
-      backgroundColor:"#32a8a2",
+      borderRadius:10,
+      backgroundColor:"#0d1d52",
       shadowColor: "#000",
       shadowOffset: {
          width: 0,
@@ -187,5 +189,7 @@ const styles = StyleSheet.create({
       elevation: 16,
       marginTop:20
       },
-    }
-  )
+      pointsStyle: {
+        fontSize: 15, alignSelf: 'center',  marginTop: 20, fontFamily: 'PoppinsRegular'
+      }
+})

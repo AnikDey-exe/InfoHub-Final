@@ -160,10 +160,11 @@ export default class HomeScreen extends React.Component {
                         <Text style={styles.pointsText}> Points: {this.state.points} </Text>
                     </View>
 
-                    <View style={{ flex: 0.3, marginTop: 40 }}>
+                    <View style={{ flex: 0.3, marginTop: 20, bottom: 20 }}>
                         <Card
                             title={"My Profile"}
-                            titleStyle={{ fontSize: 20 }}>
+                            titleStyle={{ fontSize: 20 }}
+                            containerStyle={{borderRadius: 15}}>
                             <Card>
                                 <Text style={{ fontWeight: 'bold' }}> Name: {this.state.userName} </Text>
                             </Card>
@@ -186,7 +187,7 @@ export default class HomeScreen extends React.Component {
                         </Card>
                     </View>
 
-                    <View style={{ flex: 10}}>
+                    <View style={{ flex: 10, bottom: 10}}>
                         <TouchableOpacity
                             style={{ backgroundColor: 'black', borderRadius: 25, justifyContent: 'center', alignItems: 'center', width: 50, height: 50, alignSelf: 'center' }}
                             onPress={() => {
@@ -214,7 +215,7 @@ const styles = StyleSheet.create({
     },
     pointsView: {
         justifyContent: 'center',
-        marginTop: 20
+        marginTop: -10
     },
     pointsText: {
         alignSelf: 'center',

@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         fontWeight: 'bold',
         fontSize: 30,
-        paddingLeft: 10
+        paddingLeft: 0
     },
     pointsView: {
         justifyContent: 'center',

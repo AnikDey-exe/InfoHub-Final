@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, FlatList,Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, FlatList,Text, TouchableOpacity, TouchableHighlight } from 'react-native';
 import { ListItem, Icon, Avatar } from 'react-native-elements';
 import firebase from 'firebase';
 import MyHeader from '../components/MyHeader';
@@ -44,6 +44,18 @@ export default class NotificationScreen extends Component{
   }
 }
 
+navigate = (notification) => {
+  if(notification.type === 'explanation') {
+    this.props.navigation.navigate("ExplanationDetails",{"details": notification})
+  }
+  else if(notification.type === 'tuition') {
+    this.props.navigation.navigate("TuitionDetails",{"details": notification})
+  }
+  else {
+    this.props.navigation.navigate("ConversationDetails",{"details": notification})
+  }
+}
+
   componentDidMount(){
     this.getNotifications()
   }
@@ -58,12 +70,13 @@ export default class NotificationScreen extends Component{
       return (
         <ListItem
           key={index}
+          onPress={()=>{this.navigate(item)}}
          // leftElement={<Icon name="user-circle" onPress={()=>{this.props.navigation.navigate("UserDetails",{"details": item})}} type="font-awesome" color ='black'/>}
          leftElement={
           <Avatar
           rounded
           source={{ uri: item.image }}
-          size="small"
+          size="medium"
           onPress={()=>{this.props.navigation.navigate("UserDetails",{"details": item})}}
           containerStyle={{
               

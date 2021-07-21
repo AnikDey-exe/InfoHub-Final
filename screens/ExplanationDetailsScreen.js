@@ -5,7 +5,7 @@ import firebase from 'firebase';
 import db from '../config'
 import MyHeader from '../components/MyHeader';
 import { ScrollView } from 'react-native-gesture-handler';
-import {Avatar} from 'react-native-elements';
+import { Avatar } from 'react-native-elements';
 
 export default class ExplanationDetailsScreen extends React.Component {
 
@@ -32,7 +32,8 @@ export default class ExplanationDetailsScreen extends React.Component {
             messageDocId: '',
             readerEmail: '',
             screenWidth: Math.round(Dimensions.get('window').width),
-            image: ''
+            image: '',
+            messageStatus: "present"
         }
         this.requestRef = null
     }
@@ -75,18 +76,18 @@ export default class ExplanationDetailsScreen extends React.Component {
     }
 
     fetchImage = (imageName) => {
-        var storageRef = firebase.storage().ref().child("user_profiles/"+imageName);
+        var storageRef = firebase.storage().ref().child("user_profiles/" + imageName);
         storageRef.getDownloadURL()
-        .then((url)=>{
-            this.setState({
-                image: url
+            .then((url) => {
+                this.setState({
+                    image: url
+                })
             })
-        })
-        .catch((error)=>{
-            this.setState({
-                image: '#'
+            .catch((error) => {
+                this.setState({
+                    image: '#'
+                })
             })
-        })
     }
 
     getMessages = () => {
@@ -95,13 +96,18 @@ export default class ExplanationDetailsScreen extends React.Component {
             .orderBy("date", "asc")
             .onSnapshot((snapshot) => {
                 var allMessages = snapshot.docs.map(document => document.data());
-                
-               // console.log("all msgs:", allMessages)
 
-                allMessages = allMessages.filter((msg) => { return msg.messagePostId == this.state.requestID })
+                // console.log("all msgs:", allMessages)
+
+                allMessages2 = allMessages
+                    .filter((msg) => { return msg.messagePostId == this.state.requestID })
+
+                allMessages3 = allMessages2
+                    .filter((msg) => { return msg.status == this.state.messageStatus })
+                    
                 this.setState({
-                    allMessages: allMessages
-                });
+                    allMessages: allMessages3
+                })
             })
     }
 
@@ -113,19 +119,43 @@ export default class ExplanationDetailsScreen extends React.Component {
     addCommentNotification = () => {
         var reader = this.state.readerName;
         var message = reader + " has commented on your post on " + this.state.topic;
-        if(this.state.userID !== this.state.receiverID){
+        if (this.state.userID !== this.state.receiverID) {
             db.collection("AllNotifications").add({
                 "message": message,
                 "notificationStatus": "unread",
-                "date": firebase.firestore.FieldValue.serverTimestamp(),
-                "commentor": this.state.readerName,
+                //"date": firebase.firestore.FieldValue.serverTimestamp(),
+                //"commentor": this.state.readerName,
                 "topic": this.state.topic,
                 "targetedUserId": this.state.receiverID,
                 "userId": this.state.userID,
                 "type": "explanation",
-                "image": this.state.image
+                "image": this.state.image,
+                "requestId": this.state.requestID,
+                "explanation": this.state.explanation
             })
         }
+    }
+
+    createUniqueId() {
+        return Math.random().toString(36).substring(7);
+    }
+
+    addConversationNotification = () => {
+        var message = this.state.readerName + " has started a conversation with you named " + this.state.receiverName + ", " + this.state.readerName + ".";
+        db.collection("AllNotifications").add({
+            "message": message,
+            "notificationStatus": "unread",
+            "date": firebase.firestore.FieldValue.serverTimestamp(),
+            "targetedUserId": this.state.receiverID,
+            "userId": this.state.userID,
+            "image": this.state.viewerImage,
+            "type": 'conversation',
+            "requestId": this.state.conversationId,
+            "targetedUserId2": this.state.userID,
+            "topic": this.state.receiverName + ", " + this.state.readerName,
+            "description": "Start a new conversation!",
+
+        })
     }
 
     componentDidMount() {
@@ -139,6 +169,42 @@ export default class ExplanationDetailsScreen extends React.Component {
         this.requestRef();
     }
 
+    addConversation = (profileId) => {
+        var conversationId = this.createUniqueId();
+        this.setState({
+            conversationId: conversationId
+        })
+        db.collection("Conversations").add({
+            "topic": this.state.userFullName + ", " + this.state.viewerFullName,
+            "conversationId": conversationId,
+            "targetedUserId": profileId.toLowerCase(),
+            "targetedUserId2": this.state.userID.toLowerCase(),
+            "description": "Start a new conversation!",
+            "targetUserName": this.state.userFullName,
+            "userName": this.state.viewerFullName,
+            "requestId": conversationId,
+        })
+
+        db.collection("Conversations").add({
+            "topic": this.state.userFullName + ", " + this.state.viewerFullName,
+            "requestId": conversationId,
+            "targetedUserId": this.state.userID.toLowerCase(),
+            "targetedUserId2": profileId.toLowerCase(),
+            "description": "Start a new conversation!",
+            "targetUserName": this.state.userFullName,
+            "userName": this.state.viewerFullName
+        })
+            .then(() => {
+                this.setState({
+                    topic: '',
+                    description: '',
+                    targetedUserId: ''
+                })
+            })
+
+        return alert("You have successfully started a conversation with the author of this post!")
+    }
+
     sendMessage = (message) => {
         db.collection('AllMessages').add({
             "message": message,
@@ -146,7 +212,8 @@ export default class ExplanationDetailsScreen extends React.Component {
             "userId": this.state.userID,
             "name": this.state.readerName,
             "date": firebase.firestore.Timestamp.now().toDate(),
-            "image": this.state.image
+            "image": this.state.image,
+            "status": "present"
         })
             .then(
                 db.collection("AllMessages").doc().delete()
@@ -157,6 +224,14 @@ export default class ExplanationDetailsScreen extends React.Component {
         })
     }
 
+    updateStatus = (message) => {
+        if (message.status === "present") {
+            db.collection("AllMessages").doc(message.doc_id).update({
+                "status": "deleted"
+            })
+        }
+    }
+
     keyExtractor = (item, index) => index.toString();
 
     renderItem = ({ item, i }) => {
@@ -164,31 +239,77 @@ export default class ExplanationDetailsScreen extends React.Component {
         var lastName = this.state.readerLastName;
         var fullName = this.state.readerName;
         var message = this.state.message;
+        if (item.userId === this.state.userID) {
+            return (
+                <ListItem
+                    style={{ marginLeft: 10 }}
+                    key={i}
+                    title={item.name + " | " + item.date.toDate()}
+                    titleStyle={{ fontSize: 5, color: 'grey', fontWeight: '200' }}
+                    subtitle={item.message}
+                    subtitleStyle={{ fontSize: 15 }}
+                    titleStyle={{ color: 'black', fontWeight: 'bold' }}
+                    leftElement={
+                        <Avatar
+                            rounded
+                            source={{ uri: item.image }}
+                            size="small"
+                            onPress={() => { this.props.navigation.navigate("UserDetails", { "details": item }) }}
+                            containerStyle={{
 
-        return (
-            <ListItem
-                style={{ marginLeft: 10 }}
-                key={i}
-                title={item.name + " | " + item.date.toDate()}
-                titleStyle={{ fontSize: 5, color: 'grey', fontWeight: '200' }}
-                subtitle={item.message}
-                subtitleStyle={{ fontSize: 20 }}
-                titleStyle={{ color: 'black', fontWeight: 'bold' }}
-                leftElement={
-                    <Avatar
-                    rounded
-                    source={{ uri: item.image }}
-                    size="small"
-                    onPress={()=>{this.props.navigation.navigate("UserDetails",{"details": item})}}
-                    containerStyle={{
-                        
-                       marginTop: 10
-                        
-                    }}/>
-                }
-                bottomDivider
-            />
-        )
+                                marginTop: 10
+
+                            }} />
+                    }
+                    rightElement={
+                        <TouchableOpacity style={{
+                            width: 100,
+                            height: 30,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            backgroundColor: "black",
+                            shadowColor: "#000",
+                            marginTop: 50,
+                            marginLeft: 40,
+                            shadowOffset: {
+                                width: 0,
+                                height: 8
+                            }
+                        }}
+                            onPress={() => { this.updateStatus(item) }}>
+                            <Text> Delete </Text>
+                        </TouchableOpacity>
+                    }
+                    bottomDivider
+                />
+            )
+        }
+        else {
+            return (
+                <ListItem
+                    style={{ marginLeft: 10 }}
+                    key={i}
+                    title={item.name + " | " + item.date.toDate()}
+                    titleStyle={{ fontSize: 5, color: 'grey', fontWeight: '200' }}
+                    subtitle={item.message}
+                    subtitleStyle={{ fontSize: 15 }}
+                    titleStyle={{ color: 'black', fontWeight: 'bold' }}
+                    leftElement={
+                        <Avatar
+                            rounded
+                            source={{ uri: item.image }}
+                            size="small"
+                            onPress={() => { this.props.navigation.navigate("UserDetails", { "details": item }) }}
+                            containerStyle={{
+
+                                marginTop: 10
+
+                            }} />
+                    }
+                    bottomDivider
+                />
+            )
+        }
 
     }
 
@@ -199,16 +320,16 @@ export default class ExplanationDetailsScreen extends React.Component {
                     <Header
                         leftComponent={<Icon name="arrow-left" type='feather' color='black' onPress={() => this.props.navigation.goBack()} />}
                         centerComponent={{ text: "Details", style: { color: 'black', fontSize: 20, fontWeight: 'bold', height: 50, paddingTop: 5 } }}
-                        backgroundColor="white" 
-                        />
+                        backgroundColor="white"
+                    />
                 </View>
-
-                <View style={{ flex: 0.4, marginTop: 40, }}>
-                    <ScrollView>
+                <ScrollView style={{ marginTop: 70 }}>
+                    <View style={{ flex: 0.4, marginTop: 20, }}>
+                        {/*<ScrollView> */}
                         <Card
                             title={"Article"}
                             titleStyle={{ fontSize: 20, height: "auto" }}
-                            containerStyle={{ borderRadius: 10, alignSelf: 'center', alignItems: 'center',width: "80%" }}>
+                            containerStyle={{ borderRadius: 10, alignSelf: 'center', alignItems: 'center', width: "80%" }}>
                             <Text style={{ fontWeight: 'bold', alignSelf: 'center', color: 'black', fontSize: 20, marginTop: 0 }}> {this.state.topic} </Text>
 
                             <Text style={{ fontWeight: 'bold', alignSelf: 'center', color: 'grey', fontSize: 10, marginTop: 20 }}> Posted By: {this.state.receiverName} </Text>
@@ -218,23 +339,34 @@ export default class ExplanationDetailsScreen extends React.Component {
                                 <Text style={{ fontWeight: '500', alignSelf: 'center', fontSize: 15 }}> {this.state.explanation} </Text>
                             </Card>
                         </Card>
-                    </ScrollView>
+                        {/* </ScrollView>*/}
 
-                </View>
+                    </View>
 
-                <View style={{ flex: 1, marginTop: "5%" }}>
+                    <View style={{ flex: 0.7, marginTop: 100 }}>
+                        {this.state.receiverID !== this.state.userID ? (
+                            <TouchableOpacity style={{ alignSelf: 'center', justifyContent: 'center', width: '100%', height: 50, borderRadius: 10, backgroundColor: 'black' }}
+                                onPress={() => {
+                                    {
+                                        this.addConversation(this.state.receiverID)
+                                    }
+                                    this.addConversationNotification(this.state.userID)
+                                }}>
+                                <Text style={{ fontFamily: 'PoppinsRegular', fontSize: 20, color: 'white', alignSelf: 'center' }}> Start Private Conversation </Text>
+                            </TouchableOpacity>
+                        ) : (null)}
 
-                    <Text style={{ fontSize: 25, fontWeight: 'bold', marginLeft: 10 }}> Messages </Text>
-                    <ScrollView style={{ marginBottom: 30 }}>
+                        <Text style={{ fontSize: 15, fontWeight: 'bold', marginLeft: 10, bottom: 85 }}> Messages (Others Can See) </Text>
+
+                    </View>
+                    <View style={{ bottom: 80 }}>
                         <FlatList
                             keyExtractor={this.keyExtractor}
                             data={this.state.allMessages}
                             renderItem={this.renderItem}
                         />
-                    </ScrollView>
-
-                </View>
-
+                    </View>
+                </ScrollView>
 
 
                 <KeyboardAvoidingView style={styles.container} behavior="position" enabled>
@@ -267,7 +399,12 @@ export default class ExplanationDetailsScreen extends React.Component {
                             this.sendMessage(this.state.message)
                             this.addCommentNotification(this.state.userID)
                         }}>
-                        <Icon name="paper-plane" type="font-awesome" style={{ alignSelf: 'center' }} color='white' onPress={() => { this.sendMessage(this.state.message) }} />
+                        <Icon name="paper-plane" type="font-awesome" style={{ alignSelf: 'center' }} color='white'
+                            onPress={() => {
+                                this.sendMessage(this.state.message)
+                                this.addCommentNotification(this.state.userID)
+                            }
+                            } />
                     </TouchableOpacity>
                 </KeyboardAvoidingView>
             </View>
@@ -301,7 +438,7 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         bottom: 0,
-        top: "89%",
+        //top: "89%",
         flexDirection: 'row',
         borderTopWidth: 1,
         borderTopColor: 'black',

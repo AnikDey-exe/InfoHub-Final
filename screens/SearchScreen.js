@@ -19,7 +19,8 @@ export default class SearchScreen extends Component {
           userId: '',
           userID: firebase.auth().currentUser.email,
           docId: '',
-          image: ''
+          image: '',
+          value: ''
         }
         this.requestRef = null
         this.arrayholder = []
@@ -119,6 +120,9 @@ export default class SearchScreen extends Component {
     }
 
     searchFilterFunction = (text) => {
+      this.setState({
+        value: text
+      })
       const newData = this.arrayholder.filter(item => {      
         const itemData = `${item.topic}   ${item.userName}`.toUpperCase();
         
@@ -152,13 +156,18 @@ export default class SearchScreen extends Component {
           key={i}
           title={`${item.topic}`}
           subtitle={`${item.userName}`}
+          containerStyle={{
+            width: "95%",
+            marginTop: 10,
+            alignSelf: 'center'
+          }}
           titleStyle={{ color: 'black', fontWeight: 'bold', paddingLeft: 10 }}
           subtitleStyle={{paddingLeft: 10}}
          leftElement={
           <Avatar
           rounded
           source={{ uri: item.image }}
-          size="small"
+          size="medium"
           onPress={()=>{this.props.navigation.navigate("UserDetails",{"details": item})}}
           containerStyle={{
               
@@ -190,16 +199,21 @@ export default class SearchScreen extends Component {
                 title="Search"
                 navigation={this.props.navigation}/>
                 <View style={styles.searchView}>
-                    <TextInput
-                    style={styles.searchBar}
+                    <SearchBar
+                    containerStyle={styles.searchBar}
+                    lightTheme
                     placeholder="Search"
                     onChangeText={text => this.searchFilterFunction(text)}
+                    round
+                    autoCorrect={false}
+                    value={this.state.value}
                     />
                    {/* <TouchableOpacity onPress={()=>{this.getSearchList(this.state.searchText)}}>
                          <Text style={{color: 'black',fontWeight: 'bold'}}> Search </Text> 
         </TouchableOpacity> */}
 
                 </View>
+                
                 <View style={{flex:1}}>
                 
                 {
@@ -247,21 +261,24 @@ const styles = StyleSheet.create({
     },
     searchView: {
         flexDirection:'row',
-        height:40,
+        height:'auto',
         width:'auto',
         borderWidth:0.5,
         alignItems:'center',
         backgroundColor: 'white',
         borderWidth: 1,
-        borderColor: 'white'
+        borderColor: 'white',
+        justifyContent: 'center'
         
     },
     searchBar: {
-      borderWidth:2,
-      height:40,
+     // borderWidth:1,
+      height:'auto',
       width:'100%',
-      paddingLeft:10,
-      borderRadius: 10
+      //paddingLeft:10,
+      //borderRadius: 10,
+      //backgroundColor: '#f0f0f0',
+      //alignSelf: 'center'
     },
     searchButton: {
         borderWidth:0.5,

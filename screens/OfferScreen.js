@@ -23,6 +23,7 @@ export default class OfferScreen extends Component {
           userName: "",
           contact: "",
           docId: "",
+          language: "",
           points: null
         }
     }
@@ -64,17 +65,19 @@ export default class OfferScreen extends Component {
         this.fetchImage(this.state.userId);
     }
     
-    addPost =(topic, description, pricing, contact)=>{
+    addPost =(topic, description, pricing, contact, language)=>{
         var userId = this.state.userId;
         var randomRequestId = this.createUniqueId();
         if(this.state.topic !== '' &&
         this.state.description !== '' &&
         this.state.pricing !== '' &&
-        this.state.contact !== ''){
+        this.state.contact !== '' &&
+        this.state.language !== ''){
             db.collection('TuitionsList').add({
                 "userId": userId,
                 "topic": topic,
                 "description": description,
+                "language": language,
                 "pricing": pricing,
                 "contact": contact,
                 "requestId":randomRequestId,
@@ -85,7 +88,8 @@ export default class OfferScreen extends Component {
                 this.setState({
                     topic:'',
                     description: '',
-                    pricing: ''
+                    pricing: '',
+                    language: ''
                 })
             })
 
@@ -93,18 +97,53 @@ export default class OfferScreen extends Component {
                 'points': this.state.points + 20
             })
     
-            return alert('20 Points Added');
+            //return alert('20 Points Added');
+
+            return alert("Your post has been added. \n Note that you can only post a topic and get 20 points only once per session.");
+        }
+        else if(this.state.topic !== '' &&
+        this.state.description !== '' &&
+        this.state.pricing !== '' &&
+        this.state.contact !== '' &&
+        this.state.language === ''){
+            db.collection('TuitionsList').add({
+                "userId": userId,
+                "topic": topic,
+                "description": description,
+                "language": language,
+                "pricing": pricing,
+                "contact": contact,
+                "requestId":randomRequestId,
+                "userName": this.state.userName,
+                "image": this.state.image
+            })
+            .then(()=>{
+                this.setState({
+                    topic:'',
+                    description: '',
+                    pricing: '',
+                    language: ''
+                })
+            })
+
+            db.collection("Users").doc(this.state.docId).update({
+                'points': this.state.points + 20
+            })
+    
+            //return alert('20 Points Added');
 
             return alert("Your post has been added. \n Note that you can only post a topic and get 20 points only once per session.");
         }
         else if(this.state.topic !== '' &&
         this.state.description !== '' &&
         this.state.pricing === '' &&
-        this.state.contact !== ''){
+        this.state.contact !== '' &&
+        this.state.language !== ''){
             db.collection('TuitionsList').add({
                 "userId": userId,
                 "topic": topic,
                 "description": description,
+                "language": language,
                 "pricing": "Free",
                 "contact": contact,
                 "requestId":randomRequestId,
@@ -115,7 +154,8 @@ export default class OfferScreen extends Component {
                 this.setState({
                     topic:'',
                     description: '',
-                    pricing: ''
+                    pricing: '',
+                    language: ''
                 })
             })
 
@@ -123,7 +163,172 @@ export default class OfferScreen extends Component {
                 'points': this.state.points + 20
             })
     
-            return alert('20 Points Added');
+            //return alert('20 Points Added');
+
+            return alert("Your post has been added. \n Note that you can only post a topic and get 20 points only once per session.");
+        }
+        else if(this.state.topic !== '' &&
+        this.state.description !== '' &&
+        this.state.pricing !== '' &&
+        this.state.contact === '' &&
+        this.state.language !== ''){
+            db.collection('TuitionsList').add({
+                "userId": userId,
+                "topic": topic,
+                "description": description,
+                "language": language,
+                "pricing": pricing,
+                "contact": contact,
+                "requestId":randomRequestId,
+                "userName": this.state.userName,
+                "image": this.state.image
+            })
+            .then(()=>{
+                this.setState({
+                    topic:'',
+                    description: '',
+                    pricing: '',
+                    language: ''
+                })
+            })
+
+            db.collection("Users").doc(this.state.docId).update({
+                'points': this.state.points + 20
+            })
+    
+            //return alert('20 Points Added');
+
+            return alert("Your post has been added. \n Note that you can only post a topic and get 20 points only once per session.");
+        }
+        else if(this.state.topic !== '' &&
+        this.state.description !== '' &&
+        this.state.pricing !== '' &&
+        this.state.contact === '' &&
+        this.state.language === ''){
+            db.collection('TuitionsList').add({
+                "userId": userId,
+                "topic": topic,
+                "description": description,
+                "language": language,
+                "pricing": pricing,
+                "contact": contact,
+                "requestId":randomRequestId,
+                "userName": this.state.userName,
+                "image": this.state.image
+            })
+            .then(()=>{
+                this.setState({
+                    topic:'',
+                    description: '',
+                    pricing: '',
+                    language: ''
+                })
+            })
+
+            db.collection("Users").doc(this.state.docId).update({
+                'points': this.state.points + 20
+            })
+    
+            //return alert('20 Points Added');
+
+            return alert("Your post has been added. \n Note that you can only post a topic and get 20 points only once per session.");
+        }
+        else if(this.state.topic !== '' &&
+        this.state.description !== '' &&
+        this.state.pricing === '' &&
+        this.state.contact !== '' &&
+        this.state.language === ''){
+            db.collection('TuitionsList').add({
+                "userId": userId,
+                "topic": topic,
+                "description": description,
+                "language": language,
+                "pricing": "Free",
+                "contact": contact,
+                "requestId":randomRequestId,
+                "userName": this.state.userName,
+                "image": this.state.image
+            })
+            .then(()=>{
+                this.setState({
+                    topic:'',
+                    description: '',
+                    pricing: '',
+                    language: ''
+                })
+            })
+
+            db.collection("Users").doc(this.state.docId).update({
+                'points': this.state.points + 20
+            })
+    
+            //return alert('20 Points Added');
+
+            return alert("Your post has been added. \n Note that you can only post a topic and get 20 points only once per session.");
+        }
+        else if(this.state.topic !== '' &&
+        this.state.description !== '' &&
+        this.state.pricing === '' &&
+        this.state.contact === '' &&
+        this.state.language !== ''){
+            db.collection('TuitionsList').add({
+                "userId": userId,
+                "topic": topic,
+                "description": description,
+                "language": language,
+                "pricing": "Free",
+                "contact": contact,
+                "requestId":randomRequestId,
+                "userName": this.state.userName,
+                "image": this.state.image
+            })
+            .then(()=>{
+                this.setState({
+                    topic:'',
+                    description: '',
+                    pricing: '',
+                    language: ''
+                })
+            })
+
+            db.collection("Users").doc(this.state.docId).update({
+                'points': this.state.points + 20
+            })
+    
+            //return alert('20 Points Added');
+
+            return alert("Your post has been added. \n Note that you can only post a topic and get 20 points only once per session.");
+        }
+        else if(this.state.topic !== '' &&
+        this.state.description !== '' &&
+        this.state.pricing === '' &&
+        this.state.contact === '' &&
+        this.state.language === ''){
+            db.collection('TuitionsList').add({
+                "userId": userId,
+                "topic": topic,
+                "description": description,
+                "language": language,
+                "pricing": "Free",
+                "contact": contact,
+                "requestId":randomRequestId,
+                "userName": this.state.userName,
+                "image": this.state.image
+            })
+            .then(()=>{
+                this.setState({
+                    topic:'',
+                    description: '',
+                    pricing: '',
+                    language: ''
+                })
+            })
+
+            db.collection("Users").doc(this.state.docId).update({
+                'points': this.state.points + 20
+            })
+    
+            //return alert('20 Points Added');
 
             return alert("Your post has been added. \n Note that you can only post a topic and get 20 points only once per session.");
         }
@@ -152,12 +357,12 @@ export default class OfferScreen extends Component {
                 <MyHeader
                 title="Offer A Tuition"
                 navigation={this.props.navigation}/>
-<ScrollView style={{marginTop: 70}}>
+<ScrollView style={{marginTop:70, bottom: 0}}>
             <KeyboardAvoidingView style={styles.keyBoardStyle} behavior="padding" enabled>
-                      <Text style={{fontSize: 15, alignSelf: 'center', fontWeight: 'bold', marginTop: 20}}> Total Points: {this.state.points} </Text>
+                      <Text style={{fontSize: 15, alignSelf: 'center', marginTop: 20, fontFamily: 'PoppinsRegular'}}> Total Points: {this.state.points} </Text>
               <TextInput
                 style ={styles.formTextInput}
-                placeholder={"Topic(What will your tuition be about?)"}
+                placeholder={"Topic (What Will Your Tuition Focus On?)"}
                 onChangeText={(text)=>{
                     this.setState({
                         topic:text
@@ -166,10 +371,10 @@ export default class OfferScreen extends Component {
                 value={this.state.topic}
               />
               <TextInput
-                style ={[styles.formTextInput,{height:300}]}
+                style ={[styles.formTextInput,{height:200}]}
                 multiline
                 numberOfLines ={8}
-                placeholder={"What exactly will you offer in your tuition?"}
+                placeholder={"What Exactly Will You Offer In The Tuition?"}
                 onChangeText ={(text)=>{
                     this.setState({
                         description: text
@@ -180,7 +385,18 @@ export default class OfferScreen extends Component {
 
                 <TextInput
                 style ={styles.formTextInput}
-                placeholder={"What is your price?"}
+                placeholder={"Instructional Language (Optional)"}
+                onChangeText={(text)=>{
+                    this.setState({
+                        language:text
+                    })
+                }}
+                value={this.state.language}
+              />
+
+                <TextInput
+                style ={styles.formTextInput}
+                placeholder={"Price (Free Preferred)"}
                 onChangeText ={(text)=>{
                     this.setState({
                         pricing: text
@@ -191,7 +407,7 @@ export default class OfferScreen extends Component {
 
                 <TextInput
                 style ={styles.formTextInput}
-                placeholder={"Email/Phone Number(Optional)"}
+                placeholder={"Email/Phone Number (Anyone Can See)"}
                 onChangeText ={(text)=>{
                     this.setState({
                         contact: text
@@ -203,10 +419,10 @@ export default class OfferScreen extends Component {
               <TouchableOpacity
                 style={styles.button}
                 onPress={()=>{
-                    this.addPost(this.state.topic,this.state.description,this.state.pricing,this.state.contact)
+                    this.addPost(this.state.topic,this.state.description,this.state.pricing,this.state.contact, this.state.language)
                     this.addPoints(this.state.userId)
                 }}>
-                <Text>Add</Text>
+                <Text style={{color:'white', fontFamily: 'PoppinsRegular'}}>Submit</Text>
               </TouchableOpacity>
             </KeyboardAvoidingView>
             </ScrollView>
@@ -226,18 +442,20 @@ const styles = StyleSheet.create({
       height:40,
       alignSelf:'center',
       borderColor:'black',
-      borderRadius:15,
+      borderRadius:10,
       borderWidth:0.5,
       marginTop:25,
       padding:10,
+      fontFamily: 'PoppinsRegular',
+      fontSize: 10
     },
     button:{
       width:"75%",
       height:50,
       justifyContent:'center',
       alignItems:'center',
-      borderRadius:15,
-      backgroundColor:"#32a8a2",
+      borderRadius:10,
+      backgroundColor:"#0d1d52",
       shadowColor: "#000",
       shadowOffset: {
          width: 0,

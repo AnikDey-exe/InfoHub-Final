@@ -3,6 +3,7 @@ import { createDrawerNavigator } from 'react-navigation-drawer';
 import { AppTabNavigator } from './AppTabNavigator';
 import { AppTabNavigator2 } from './AppTabNavigator2';
 import { AppTabNavigator3 } from './AppTabNavigator3';
+import { AppTabNavigator4 } from './AppTabNavigator4';
 import SettingsScreen from '../screens/SettingsScreen';
 import NotificationScreen from '../screens/NotificationScreen';
 import CustomSideBarMenu from './CustomSideBarMenu';
@@ -30,6 +31,13 @@ export const AppDrawerNavigator = createDrawerNavigator(
             navigationOptions:{
                 drawerIcon : <Icon name="list" type ="font-awesome" />,
             },
+        },
+        
+        Conversations: {
+            screen: AppTabNavigator4,
+            navigationOptions: {
+                drawerIcon: <Icon name="comment" type="font-awesome"/>
+            }
         },
 
         Notifications: {

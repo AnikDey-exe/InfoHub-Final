@@ -8,6 +8,8 @@ import MyExplanationsScreen from '../screens/MyExplanationsScreen';
 import MyTuitionsScreen from '../screens/MyTuitionsScreen';
 import UserProfileDetailsScreen from '../screens/UserProfileDetailsScreen';
 
+//To provide unprivileged children without an education free tuitions and answers from service providers willing to help out society.
+
 export const AppStackNavigator = createStackNavigator(
     {
         SearchList: {

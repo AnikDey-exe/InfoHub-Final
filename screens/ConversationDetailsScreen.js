@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Text, FlatList, TouchableOpacity, Dimensions, TextInput, KeyboardAvoidingView } from 'react-native';
+import { View, StyleSheet, Text, FlatList, TouchableOpacity, KeyboardAvoidingView, TextInput, Dimensions } from 'react-native';
 import { ListItem, Card, Icon, Header } from 'react-native-elements'
 import firebase from 'firebase';
 import db from '../config'
@@ -7,34 +7,38 @@ import MyHeader from '../components/MyHeader';
 import { ScrollView } from 'react-native-gesture-handler';
 import {Avatar} from 'react-native-elements';
 
-export default class TuitionDetailsScreen extends React.Component {
+export default class ConversationDetailsScreen extends React.Component {
+
     constructor(props) {
         super(props);
         this.state = {
             userID: firebase.auth().currentUser.email,
-            receiverID: this.props.navigation.getParam('details')["userId"],
-            requestID: this.props.navigation.getParam('details')["requestId"],
+            targetedUserId: this.props.navigation.getParam('details')["targetedUserId"],
+            targetedUserId2: this.props.navigation.getParam('details')["targetedUserId2"],
+            conversationID: this.props.navigation.getParam('details')["requestId"],
             topic: this.props.navigation.getParam('details')["topic"],
             description: this.props.navigation.getParam('details')["description"],
-            pricing: this.props.navigation.getParam('details')["pricing"],
-            contact: this.props.navigation.getParam('details')["contact"],
-            language: this.props.navigation.getParam('details')["language"],
             receiverFirstName: '',
             receiverLastName: '',
             receiverName: '',
-            receiverContact: '',
-            receiverAddress: '',
             receiverRequestDocId: '',
             userName: '',
-            interested: '',
+            message: '',
             readerName: '',
-            allMessages: '',
+            readerFirstName: '',
+            readerLastName: '',
+            allMessages: [],
+            messageDocId: '',
+            readerEmail: '',
             screenWidth: Math.round(Dimensions.get('window').width),
+            image: '',
+            actualName: ''
         }
+        this.requestRef = null
     }
 
     getReceiverDetails() {
-        db.collection("Users").where("emailID", "==", this.state.receiverID).get()
+        db.collection("Users").where("emailID", "==", this.state.targetedUserId).get()
             .then(snapshot => {
                 snapshot.forEach(doc => {
                     this.setState({
@@ -42,11 +46,12 @@ export default class TuitionDetailsScreen extends React.Component {
                         receiverLastName: doc.data().lastName,
                         receiverName: doc.data().firstName + " " + doc.data().lastName,
                         receiverContact: doc.data().contact,
+                        readerEmail: doc.data().emailID
                     })
                 })
             })
 
-        db.collection("ExplanationsList").where("requestID", "==", this.state.requestID).get()
+        db.collection("Conversations").where("conversationID", "==", this.state.conversationID).get()
             .then(snapshot => {
                 snapshot.forEach(doc => {
                     this.setState({
@@ -56,8 +61,8 @@ export default class TuitionDetailsScreen extends React.Component {
             })
     }
 
-    getReaderDetails = (userID) => {
-        db.collection("Users").where("emailID", "==", userID).get()
+    getReaderDetails = () => {
+        db.collection("Users").where("emailID", "==", this.state.targetedUserId2).get()
             .then(snapshot => {
                 snapshot.forEach((doc) => {
                     this.setState({
@@ -69,31 +74,42 @@ export default class TuitionDetailsScreen extends React.Component {
             })
     }
 
-    fetchImage = (imageName) => {
-        var storageRef = firebase.storage().ref().child("user_profiles/" + imageName);
-        storageRef.getDownloadURL()
-            .then((url) => {
-                this.setState({
-                    image: url
-                })
-            })
-            .catch((error) => {
-                this.setState({
-                    image: '#'
+    getOwnDetails = () => {
+        db.collection("Users").where("emailID", "==", this.state.userID).get()
+            .then(snapshot => {
+                snapshot.forEach((doc) => {
+                    this.setState({
+                        actualName: doc.data().firstName + " " + doc.data().lastName,
+                    })
                 })
             })
     }
 
+    fetchImage = (imageName) => {
+        var storageRef = firebase.storage().ref().child("user_profiles/"+imageName);
+        storageRef.getDownloadURL()
+        .then((url)=>{
+            this.setState({
+                image: url
+            })
+        })
+        .catch((error)=>{
+            this.setState({
+                image: '#'
+            })
+        })
+    }
+
     getMessages = () => {
         this.requestRef = db.collection('AllMessages')
-            //.where("messagePostId", "==", this.state.requestID)
+            //.where("messagePostId", "==", this.state.conversationID)
             .orderBy("date", "asc")
             .onSnapshot((snapshot) => {
                 var allMessages = snapshot.docs.map(document => document.data());
+                
+               // console.log("all msgs:", allMessages)
 
-                // console.log("all msgs:", allMessages)
-
-                allMessages = allMessages.filter((msg) => { return msg.messagePostId == this.state.requestID })
+                allMessages = allMessages.filter((msg) => { return msg.messagePostId == this.state.conversationID })
                 this.setState({
                     allMessages: allMessages
                 });
@@ -106,42 +122,43 @@ export default class TuitionDetailsScreen extends React.Component {
     }
 
     addCommentNotification = () => {
-        var reader = this.state.readerName;
-        var message = reader + " has commented on your post on " + this.state.topic;
-        if (this.state.userID !== this.state.receiverID) {
+        var reader = this.state.actualName;
+        var message = "Activity on the conversation " + this.state.topic + " has occurred.";
+        //if(this.state.userID !== this.state.targetedUserId || this.state.userID !== this.state.targetedUserId2){
             db.collection("AllNotifications").add({
                 "message": message,
                 "notificationStatus": "unread",
-                //"date": firebase.firestore.FieldValue.serverTimestamp(),
-                //"commentor": this.state.readerName,
+                "date": firebase.firestore.FieldValue.serverTimestamp(),
                 "topic": this.state.topic,
-                "targetedUserId": this.state.receiverID,
+                "targetedUserId": this.state.targetedUserId,
+                "targetedUserId2": this.state.targetedUserId2,
                 "userId": this.state.userID,
-                "type": "tuition",
+                "type": "conversation",
                 "image": this.state.image,
-                "requestId": this.state.requestID,
-                "description": this.state.description,
-                "pricing": this.state.pricing,
-                "contact": this.state.contact,
-                "language": this.state.language
+                "requestId": this.state.conversationID,
+                "description": this.state.description
             })
-        }
+       // }
     }
-
 
     componentDidMount() {
         this.getReceiverDetails();
-        this.getReaderDetails(this.state.userID);
         this.getMessages();
+        this.getReaderDetails();
         this.fetchImage(this.state.userID);
+        this.getOwnDetails();
+    }
+
+    componentWillUnmount() {
+        this.requestRef();
     }
 
     sendMessage = (message) => {
         db.collection('AllMessages').add({
             "message": message,
-            "messagePostId": this.state.requestID,
+            "messagePostId": this.state.conversationID,
             "userId": this.state.userID,
-            "name": this.state.readerName,
+            "name": this.state.actualName,
             "date": firebase.firestore.Timestamp.now().toDate(),
             "image": this.state.image
         })
@@ -173,15 +190,15 @@ export default class TuitionDetailsScreen extends React.Component {
                 titleStyle={{ color: 'black', fontWeight: 'bold' }}
                 leftElement={
                     <Avatar
-                        rounded
-                        source={{ uri: item.image }}
-                        size="small"
-                        onPress={() => { this.props.navigation.navigate("UserDetails", { "details": item }) }}
-                        containerStyle={{
-
-                            marginTop: 10
-
-                        }} />
+                    rounded
+                    source={{ uri: item.image }}
+                    size="small"
+                    onPress={()=>{this.props.navigation.navigate("UserDetails",{"details": item})}}
+                    containerStyle={{
+                        
+                       marginTop: 10
+                        
+                    }}/>
                 }
                 bottomDivider
             />
@@ -189,65 +206,46 @@ export default class TuitionDetailsScreen extends React.Component {
 
     }
 
-
     render() {
         return (
             <View style={{ flex: 1 }}>
                 <View style={{ flex: 0.1 }}>
                     <Header
                         leftComponent={<Icon name="arrow-left" type='feather' color='black' onPress={() => this.props.navigation.goBack()} />}
-                        centerComponent={{ text: "Details", style: { color: 'black', fontSize: 20, fontWeight: 'bold', height: 50, paddingTop: 5 } }}
-                        backgroundColor="white"
-                         />
+                        centerComponent={{ text: "Conversation", style: { color: 'black', fontSize: 20, fontWeight: 'bold', height: 50, paddingTop: 5 } }}
+                        backgroundColor="white" 
+                        />
                 </View>
                 <ScrollView style={{marginTop: 70}}>
-                <View style={{ flex: 0.4, marginTop: 20 }}>
-                   
-                    <Card
-                        title={"Tuition Details"}
-                        titleStyle={{ fontSize: 20 }}>
-                        <Card>
-                            <Text style={{ fontWeight: 'bold' }}> Topic: {this.state.topic} </Text>
-                        </Card>
+                <View style={{ flex: 0.4, marginTop: 20, }}>
+                    {/*<ScrollView> */}
+                        <Card
+                            title={this.state.topic}
+                            titleStyle={{ fontSize: 20, height: "auto" }}
+                            containerStyle={{ borderRadius: 10, alignSelf: 'center', alignItems: 'center',width: "80%" }}>
+                            <Text style={{ fontWeight: 'bold', alignSelf: 'center', color: 'black', fontSize: 20, marginTop: 0 }}> {this.state.description} </Text>
 
-                        <Card>
-                            <Text style={{ fontWeight: 'bold' }}> Description: {this.state.description} </Text>
+                            <Text style={{ fontWeight: 'bold', alignSelf: 'center', color: 'grey', fontSize: 10, marginTop: 20 }}> Participants: {this.state.receiverName} and {this.state.readerName} </Text>
                         </Card>
+                   {/* </ScrollView>*/}
 
-                        <Card>
-                            <Text style={{ fontWeight: 'bold' }}> Language: {this.state.language} </Text>
-                        </Card>
-
-                        <Card>
-                            <Text style={{ fontWeight: 'bold' }}> Pricing: {this.state.pricing} </Text>
-                        </Card>
-
-                        <Card>
-                            <Text style={{ fontWeight: 'bold' }}> Contact: {this.state.contact} </Text>
-                        </Card>
-
-                        <Card>
-                            <Text style={{ fontWeight: 'bold' }}> By: {this.state.receiverName} </Text>
-                        </Card>
-                    </Card>
-                  
                 </View>
-                
+
                 <View style={{ flex: 0.7, marginTop: 100 }}>
 
-                    <Text style={{ fontSize: 15, fontWeight: 'bold', marginLeft: 10, bottom: 85 }}> Messages (Others Can See) </Text>
+                    <Text style={{ fontSize: 15, fontWeight: 'bold', marginLeft: 10, bottom: 85 }}> Messages (Private) </Text>
                     
                 </View>
-
                 <View style={{ bottom: 80 }}>
                         <FlatList
                             keyExtractor={this.keyExtractor}
                             data={this.state.allMessages}
                             renderItem={this.renderItem}
                         />
-                </View>
+                    </View>
                 </ScrollView>
 
+            
                 <KeyboardAvoidingView style={styles.container} behavior="position" enabled>
                     <TextInput
                         style={{
@@ -278,9 +276,7 @@ export default class TuitionDetailsScreen extends React.Component {
                             this.sendMessage(this.state.message)
                             this.addCommentNotification(this.state.userID)
                         }}>
-                        <Icon name="paper-plane" type="font-awesome" style={{ alignSelf: 'center' }} color='white' 
-                        onPress={() => { 
-                        this.sendMessage(this.state.message) 
+                        <Icon name="paper-plane" type="font-awesome" style={{ alignSelf: 'center' }} color='white' onPress={() => { this.sendMessage(this.state.message) 
                         this.addCommentNotification(this.state.userID)}} />
                     </TouchableOpacity>
                 </KeyboardAvoidingView>
@@ -315,6 +311,7 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         bottom: 0,
+        //top: "89%",
         flexDirection: 'row',
         borderTopWidth: 1,
         borderTopColor: 'black',
@@ -335,4 +332,5 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         backgroundColor: 'black',
     }
+
 })

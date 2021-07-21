@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, StyleSheet, Text, FlatList,TouchableOpacity } from 'react-native';
-import { ListItem, Icon } from 'react-native-elements'
+import { ListItem, Icon, SearchBar } from 'react-native-elements';
 import firebase from 'firebase';
 import db from '../config'
 import MyHeader from '../components/MyHeader';
@@ -13,7 +13,8 @@ export default class TuitionScreen extends Component {
         super()
         this.state = {
           addedTuitionsList : [],
-          searchText: ''
+          searchText: '',
+          value: ''
         }
         this.requestRef = null
         this.arrayholder = []
@@ -86,6 +87,9 @@ export default class TuitionScreen extends Component {
     }
 
     searchFilterFunction = (text) => {
+      this.setState({
+        value: text
+      })
       const newData = this.arrayholder.filter(item => {      
         const itemData = `${item.topic}   ${item.userName}`.toUpperCase();
         
@@ -115,11 +119,16 @@ export default class TuitionScreen extends Component {
           subtitle={"Price: "+item.pricing + "\nContact: "+ item.contact + "\nPosted By: "+ item.userName}
           titleStyle={{ color: 'black', fontWeight: 'bold', paddingLeft: 10 }}
           subtitleStyle={{paddingLeft: 10}}
+          containerStyle={{
+            width: "95%",
+            marginTop: 10,
+            alignSelf: 'center'
+          }}
           leftElement={
             <Avatar
             rounded
             source={{ uri: item.image }}
-            size="small"
+            size="medium"
             onPress={()=>{this.props.navigation.navigate("UserDetails",{"details": item})}}
             containerStyle={{
                 
@@ -147,10 +156,14 @@ export default class TuitionScreen extends Component {
                 title="Search"
                 navigation={this.props.navigation}/>
                 <View style={styles.searchView}>
-                <TextInput
-                    style={styles.searchBar}
+                <SearchBar
+                    containerStyle={styles.searchBar}
+                    lightTheme
                     placeholder="Search"
                     onChangeText={text => this.searchFilterFunction(text)}
+                    round
+                    autoCorrect={false}
+                    value={this.state.value}
                     />
                    {/* <TouchableOpacity onPress={()=>{this.getSearchList(this.state.searchText)}}>
                          <Text style={{color: 'black',fontWeight: 'bold'}}> Search </Text> 
@@ -203,21 +216,25 @@ const styles = StyleSheet.create({
     },
     searchView: {
       flexDirection:'row',
-      height:40,
+      height:'auto',
       width:'auto',
       borderWidth:0.5,
       alignItems:'center',
       backgroundColor: 'white',
       borderWidth: 1,
-      borderColor: 'white'
-    },
-    searchBar: {
-      borderWidth:2,
-      height:40,
-      width:'100%',
-      paddingLeft:10,
-      borderRadius: 10
-    },
+      borderColor: 'white',
+      justifyContent: 'center'
+      
+  },
+  searchBar: {
+   // borderWidth:1,
+    height:'auto',
+    width:'100%',
+    //paddingLeft:10,
+    //borderRadius: 10,
+    //backgroundColor: '#f0f0f0',
+    //alignSelf: 'center'
+  },
     searchButton: {
         borderWidth:0.5,
         height:30,

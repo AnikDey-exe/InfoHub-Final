@@ -128,12 +128,13 @@ export default class CustomSideBarMenu extends React.Component {
                         
                     }}
                     showEditButton/>
-                    <Text style={{fontWeight: 'bold', fontSize: 20, paddingTop: 10}}> {this.state.name} </Text>
-                    <Text style={{fontWeight: '400', fontSize: 15, paddingTop: 0, color: 'grey'}}> {this.state.userId} </Text>
+                    <Text style={{fontWeight: 'bold', fontSize: 20, paddingTop: 10, fontFamily: 'PoppinsMedium'}}> {this.state.name} </Text>
+                    <Text style={{fontSize: 15, paddingTop: 0, color: 'grey', fontFamily: 'PoppinsRegular'}}> {this.state.userId} </Text>
                 </View>
                 <View style={styles.drawerItemContainer}>
                     <DrawerItems
-                    {...this.props}/>
+                    {...this.props}
+                    labelStyle={{fontFamily:'PoppinsRegular'}}/>
                 </View>
                 <View style={styles.logoutContainer}>
                     <TouchableOpacity
@@ -180,6 +181,7 @@ const styles = StyleSheet.create({
         fontSize: 25,
         fontWeight: 'bold',
         color: 'black', 
-        paddingLeft: 10
+        paddingLeft: 10,
+        fontFamily: 'PoppinsMedium'
     }
 })
